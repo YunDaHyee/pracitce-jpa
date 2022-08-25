@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+	<persistence-unit name="hello"> <!-- jpa 쓸건데 이름은 뭐 쓸건지. 보통 db 하나정도로 만듬. -->
+		<properties>
+		
+			<!-- 필수 속성 -->
+			<!-- JPA가 사용하는 db에 대한 접근정보 넣어줘야함. db 드라이버에 따라 달라짐 -->
+			<property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
+			<property name="javax.persistence.jdbc.user" value="sa" />
+			<property name="javax.persistence.jdbc.password" value="" />
+			<property name="javax.persistence.jdbc.url"	value="jdbc:h2:tcp://localhost/~/test" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle12cDialect" />
+
+			<!-- 옵션 -->
+			<property name="hibernate.show_sql" value="true" /><!-- 디비에 쿼리 나가는 걸 출력해주는 옵션.-->
+			<property name="hibernate.format_sql" value="true" /><!-- 쿼리를 포맷팅 시켜주는 옵션 -->
+			<property name="hibernate.use_sql_comments" value="true" /> <!-- 쿼리에 대한 설명을 주석으로 출력해주는 옵션 -->
+			
+			<!--
+				하이버네이트 같은 경우, 사이즈만큼 모아서 한방에 네트워크로 쿼리 두번을 보내고 DB로 커밋 치는 옵션. 모았다가 DB에 넣는 버퍼링 같은 옵션.
+				배치쿼리 짜지 않는 이상, 실시간 쿼리에서 얻는 이점이 크진 않지만 이런 기능도 활용할 수 있다. 이런 걸로 성능의 이점을 얻을 수 있다는 것.
+			-->
+			<property name="hibernate.jdbc.batch_size" value="10"/>
+			<!-- <property name="hibernate.id.new_generator_mappings" value="true" /> -->
+
+			<!--<property name="hibernate.hbm2ddl.auto" value="create" /> -->
+		</properties>
+	</persistence-unit>
+
+</persistence>
