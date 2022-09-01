@@ -101,14 +101,48 @@ public class JpaMain {
 			/*
 				Member member = em.find(Member.class, 150L); // JPA가 DB에서 조회해와서 영속성 컨텍스트에 올림 
 				member.setName("AAAAA");
-	
+			
 				//em.detach(member); // jpa에서 관리안하게 됨. 그래서 트잭 커밋 시에 아무일도 일어나지 않음.
 				em.clear();
 				Member member2 = em.find(Member.class, 150L); // JPA가 DB에서 조회해와서 영속성 컨텍스트에 올림 
+			
 			*/
 			
-			System.out.println("====================");
-
+			//System.out.println("====================");
+			
+			// 10. Enumerated - enum 타입 매핑 예제 
+			/*
+				Member member = new Member();
+				member.setId(3L);
+				member.setUsername("C");
+				member.setRoleType(RoleType.GUEST);
+			*/
+			
+			// 11. 기본키 매핑 예제 
+			// @Id
+			/*
+			Member member = new Member();
+			member.setId2("ID_A");
+			member.setUsername("A");
+			*/
+			
+			// @GeneratedValue
+			Member member = new Member();
+			member.setUsername("A");
+			Member member2 = new Member();
+			member2.setUsername("A");
+			Member member3 = new Member();
+			member3.setUsername("A");
+			
+			System.out.println("================");
+			em.persist(member);
+			em.persist(member2);
+			em.persist(member3);
+			System.out.println("member.id = " + member.getId2());
+			System.out.println("member.id = " + member2.getId2());
+			System.out.println("member.id = " + member3.getId2());
+			System.out.println("================");
+			
 			tx.commit(); // 트잭 커밋. 꼭 해줘야 반영 됨. 이때 DB로 쿼리가 날라간다.
 		} catch (Exception e) {
 			tx.rollback();
