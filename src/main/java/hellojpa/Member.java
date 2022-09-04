@@ -11,27 +11,34 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
-import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 @Entity // 꼭 넣어야함. 그래야 JPA가 첨 로딩될 때 JPA를 사용하는 애구나, 관리해야겠다고 인식을 함.
-@SequenceGenerator(name = "member_seq_generator", sequenceName = "member_seq", initialValue = 1, allocationSize = 50)
+//@SequenceGenerator(name = "member_seq_generator", sequenceName = "member_seq", initialValue = 1, allocationSize = 50)
 //@TableGenerator(name = "MEMBER_SEQ_GENERATOR", table = "MY_SEQUENCES", pkColumnValue = "MEMBER_SEQ", allocationSize = 1)
 public class Member {
-	//@Id // jpa에게 pk가 뭔지 알려주는 역할 
+	@Id // jpa에게 pk가 뭔지 알려주는 역할
+	@GeneratedValue
+	@Column(name = "MEMBER_ID")
 	private Long id;
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "member_seq_generator")
+	//@Id
+	//@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "member_seq_generator")
 	//@GeneratedValue(strategy = GenerationType.TABLE, generator = "MEMBER_SEQ_GENERATOR")
 	//@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id2;
-	
-	@Column(name="name")
+
+	@ManyToOne
+	@JoinColumn(name = "TEAM_ID")
+	private Team team;
+
+	@Column(name="USERNAME")
 	private String username;
 	
 	// 자바에 맞춘 타입을 쓰면 DB에서 그에 적절한 타입으로 만든다. 여기서는 Integer에 적절한 NUMBER 타입
@@ -65,6 +72,19 @@ public class Member {
 	public Member() {
 	}
 
+	public Team getTeam() {
+		return team;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+
+	public Long getId() {
+		return id;
+	}
+	
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -73,6 +93,16 @@ public class Member {
 		this.id2 = id2;
 	}
 
+	public void setTeam(Team team) {
+		this.team = team;
+	}
+	
+	// 연관관계용 편의 메소드 - 방법 1
+	public void changeTeam(Team team) {
+		this.team = team;
+		team.getMembers().add(this); // this : 나 자신
+	}
+	
 	public void setUsername(String username) {
 		this.username = username;
 	}

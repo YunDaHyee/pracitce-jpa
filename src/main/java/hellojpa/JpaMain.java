@@ -1,5 +1,7 @@
 package hellojpa;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -18,7 +20,7 @@ public class JpaMain {
 		tx.begin(); // 트잭을 시작시킴
 
 		try {
-			
+
 			// 1. 멤버 생성 - 비영속 상태
 			/*
 				Member member = new Member();
@@ -107,9 +109,9 @@ public class JpaMain {
 				Member member2 = em.find(Member.class, 150L); // JPA가 DB에서 조회해와서 영속성 컨텍스트에 올림 
 			
 			*/
-			
-			//System.out.println("====================");
-			
+
+			// System.out.println("====================");
+
 			// 10. Enumerated - enum 타입 매핑 예제 
 			/*
 				Member member = new Member();
@@ -117,31 +119,106 @@ public class JpaMain {
 				member.setUsername("C");
 				member.setRoleType(RoleType.GUEST);
 			*/
-			
+
 			// 11. 기본키 매핑 예제 
 			// @Id
 			/*
-			Member member = new Member();
-			member.setId2("ID_A");
-			member.setUsername("A");
+				Member member = new Member();
+				member.setId2("ID_A");
+				member.setUsername("A");
+			*/
+
+			// 12. @GeneratedValue 예제
+			/*
+				Member member = new Member();
+				member.setUsername("A");
+				Member member2 = new Member();
+				member2.setUsername("A");
+				Member member3 = new Member();
+				member3.setUsername("A");
+				
+				System.out.println("================");
+				em.persist(member);
+				em.persist(member2);
+				em.persist(member3);
+				System.out.println("member.id = " + member.getId2());
+				System.out.println("member.id = " + member2.getId2());
+				System.out.println("member.id = " + member3.getId2());
+				System.out.println("================");
+			*/
+
+			/* 13. 연관관계 매핑 */
+			/*
+				// 팀 저장
+				Team team = new Team();
+				team.setName("TeamA");
+				em.persist(team);
+				
+				// 회원 저장
+				Member member = new Member();
+				member.setUsername("멤버1");
+				member.setTeam(team); // 단방향 연관관계 설정, 참조 저장. jpa가 알아서 team의 pk 값을 꺼내서 insert 시에 fk 값으로 사용한다.
+				em.persist(member);
+				
+				// 조회 - 객체지향스럽게 레퍼런스들을 바로 가지고올 수 있따.
+				
+				//	여기서 find(조회)쿼리가 안나가는 건 위에서 persist 할 때 이미 영속성 컨텍스트에 아이디가 1차 캐시에 있어서 바로 가져왔기 때문
+				//	만약 영속성 컨텍스트 말고 DB에서 쿼리 나가는 거 보고 싶으면 em.flush()로 강제 호출 후 em.clear() 하면 된다.
+				//	flush로 영속성 컨텍스트에 있는 걸 DB 쿼리로 다 날리고 싱크 맞춘 뒤, clear 하면서 영속성 컨텍스트를 초기화 시키는 것.
+				//	그럼 영속성 컨텍스트에는 아무것도 없을테니까 1차 캐시로 다시 가져오기 위해서 쿼리를 날리게 된다.
+				
+				em.flush();
+				em.clear();
+				
+				Member findMember = em.find(Member.class, member.getId());
+				Team findTeam = findMember.getTeam(); // 참조를 사용해서 연관관계 조회. 바로 꺼내서 조회 가능
+				System.out.println("findTeam = " + findTeam.getName());
+				
+				// 수정 - FK update
+				
+				Team newTeam = em.find(Team.class, 100L);  // 만약 아이디가 100L인 값이 있다고 가정한다면
+				findMember.setTeam(newTeam); // 100팀으로 변경함
+										
+				
+				// 양방향 연관관계 설정
+				List<Member> members = findMember.getTeam().getMembers();
+				for( Member m : members ){
+					System.out.println( "유저 이름 - "+m.getUsername() );
+				}
 			*/
 			
-			// @GeneratedValue
-			Member member = new Member();
-			member.setUsername("A");
-			Member member2 = new Member();
-			member2.setUsername("A");
-			Member member3 = new Member();
-			member3.setUsername("A");
+			/* 14. 연관관계 주인 */
+			Team team = new Team();
+			team.setName("TeamA");
+			//team.getMembers().add(member); // 연관관계로 집어넣음.하지만 읽기 전용이기 때문에 jpa에서 추가/변경할 때는 아예 안봐. 
+			em.persist(team);
 			
-			System.out.println("================");
+			Member member = new Member();
+			member.setUsername("멤버1");
+			//member.setTeam(team); // 연관관계 주인일 때만 값을 넣음
+			member.changeTeam(team); // 연관관계용 편의 메소드 - 방법 1
 			em.persist(member);
-			em.persist(member2);
-			em.persist(member3);
-			System.out.println("member.id = " + member.getId2());
-			System.out.println("member.id = " + member2.getId2());
-			System.out.println("member.id = " + member3.getId2());
-			System.out.println("================");
+			
+			//team.getMembers().add(member);
+			
+			// 뭘 기준으로 할지는 상황에 따라 고르기
+			//team.addMember(member); // 연관관계용 편의 메소드 - 방법 2
+			
+			/*
+			em.flush();
+			em.clear();
+			*/
+			
+			Team findTeam = em.find( Team.class, team.getId() );
+			System.out.println(findTeam.getMembers());
+			List<Member> members = findTeam.getMembers();
+			
+			System.out.println("=====================");
+			for( Member m : members ){
+				System.out.println("m = "+ m.getUsername());
+			}
+			System.out.println("=====================");
+			
 			
 			tx.commit(); // 트잭 커밋. 꼭 해줘야 반영 됨. 이때 DB로 쿼리가 날라간다.
 		} catch (Exception e) {
