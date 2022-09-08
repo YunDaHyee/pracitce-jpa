@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 
 @Entity
@@ -15,9 +17,10 @@ public class Team {
 	@Column(name = "TEAM_ID")
 	private Long id;
 	private String name;
-	
-	// 팀에서 멤버로 가는 것이기 때문에 팀 입장에서 멤버는 일대다 
-	@OneToMany(mappedBy = "team")
+
+	//@OneToMany(mappedBy = "team") // 팀에서 멤버로 가는 것이기 때문에 팀 입장에서 멤버는 일대다 
+	@OneToMany // 일대다 관계를 위해서 여기서 연관관계 주인 설정을 함
+	//@JoinColumn(name="TEAM_ID")
 	private List<Member> members = new ArrayList<Member>() ; // ArrayList로 초기화해두는 것이 관례. 그래야 add할 때 null 안 뜸.
 	
 	public Long getId() {

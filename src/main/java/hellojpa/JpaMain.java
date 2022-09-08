@@ -186,39 +186,54 @@ public class JpaMain {
 					System.out.println( "유저 이름 - "+m.getUsername() );
 				}
 			*/
-			
+
 			/* 14. 연관관계 주인 */
-			Team team = new Team();
-			team.setName("TeamA");
-			//team.getMembers().add(member); // 연관관계로 집어넣음.하지만 읽기 전용이기 때문에 jpa에서 추가/변경할 때는 아예 안봐. 
-			em.persist(team);
-			
-			Member member = new Member();
-			member.setUsername("멤버1");
-			//member.setTeam(team); // 연관관계 주인일 때만 값을 넣음
-			member.changeTeam(team); // 연관관계용 편의 메소드 - 방법 1
-			em.persist(member);
-			
-			//team.getMembers().add(member);
-			
-			// 뭘 기준으로 할지는 상황에 따라 고르기
-			//team.addMember(member); // 연관관계용 편의 메소드 - 방법 2
-			
 			/*
-			em.flush();
-			em.clear();
+				Team team = new Team();
+				team.setName("TeamA");
+				//team.getMembers().add(member); // 연관관계로 집어넣음.하지만 읽기 전용이기 때문에 jpa에서 추가/변경할 때는 아예 안봐. 
+				em.persist(team);
+				
+				Member member = new Member();
+				member.setUsername("멤버1");
+				//member.setTeam(team); // 연관관계 주인일 때만 값을 넣음
+				member.changeTeam(team); // 연관관계용 편의 메소드 - 방법 1
+				em.persist(member);
+				
+				//team.getMembers().add(member);
+				
+				// 뭘 기준으로 할지는 상황에 따라 고르기
+				//team.addMember(member); // 연관관계용 편의 메소드 - 방법 2
+				
+				
+				em.flush();
+				em.clear();
+				
+				
+				Team findTeam = em.find( Team.class, team.getId() );
+				System.out.println(findTeam.getMembers());
+				List<Member> members = findTeam.getMembers();
+				
+				System.out.println("=====================");
+				for( Member m : members ){
+					System.out.println("m = "+ m.getUsername());
+				}
+				System.out.println("=====================");
 			*/
 			
-			Team findTeam = em.find( Team.class, team.getId() );
-			System.out.println(findTeam.getMembers());
-			List<Member> members = findTeam.getMembers();
+			/* 15. 일대다 */
+			Member m = new Member();
+			m.setUsername("member1"); // 실무에선 setter를 잘 안쓰고 생성자에서 완성되게끔 Builder패턴 쓰거나 하는데 예제 때문에 setter 쓴대.
+			em.persist(m);
 			
-			System.out.println("=====================");
-			for( Member m : members ){
-				System.out.println("m = "+ m.getUsername());
-			}
-			System.out.println("=====================");
+			Team t = new Team();
+			t.setName("teamA");
+			t.getMembers().add(m);	/*	여기가 애매해져. 팀 테이블에 insert 할 게 아니고 member에다가 해야하는 부분임
+										이렇게 되면 연관관계까 바뀌는거니까 외래키가 바뀌는거야.
+										근데 외래키가 멤버테이블에 있어서 membmer테이블을 업데이트 쳐줘야해
+									*/
 			
+			em.persist(t);
 			
 			tx.commit(); // 트잭 커밋. 꼭 해줘야 반영 됨. 이때 DB로 쿼리가 날라간다.
 		} catch (Exception e) {

@@ -2,19 +2,21 @@ package hellojpa;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -33,11 +35,30 @@ public class Member {
 	//@GeneratedValue(strategy = GenerationType.TABLE, generator = "MEMBER_SEQ_GENERATOR")
 	//@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id2;
-
+	/*
+		@ManyToOne
+		@JoinColumn(name = "TEAM_ID")
+		private Team team;
+	*/
 	@ManyToOne
-	@JoinColumn(name = "TEAM_ID")
+	@JoinColumn(name = "TEAM_ID", insertable = false, updatable = false)
 	private Team team;
-
+	
+	@OneToOne
+	@JoinColumn(name="LOCKER_ID")
+	private Locker locker;
+	
+	/* 
+	// 다대다 관계일 때
+	@ManyToMany
+	@JoinTable(name = "MEMBER_PRODUCT")
+	private List<Product> products = new ArrayList<Product>();
+	*/
+	
+	// 다대다 관계를 일대다,다대일 관계로 풀어준 것
+	@OneToMany(mappedBy = "member" )
+	private List<MemberProduct> memberProducts = new ArrayList<MemberProduct>();
+	
 	@Column(name="USERNAME")
 	private String username;
 	
@@ -72,10 +93,6 @@ public class Member {
 	public Member() {
 	}
 
-	public Team getTeam() {
-		return team;
-	}
-	
 	public String getUsername() {
 		return username;
 	}
@@ -93,15 +110,12 @@ public class Member {
 		this.id2 = id2;
 	}
 
-	public void setTeam(Team team) {
-		this.team = team;
-	}
-	
+	/*
 	// 연관관계용 편의 메소드 - 방법 1
 	public void changeTeam(Team team) {
 		this.team = team;
 		team.getMembers().add(this); // this : 나 자신
-	}
+	}*/
 	
 	public void setUsername(String username) {
 		this.username = username;
